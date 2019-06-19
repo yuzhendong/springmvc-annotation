@@ -1,0 +1,37 @@
+1、Servlet容器在启动的时候，会扫描每个jar包下的META-INF/services/javax.servlet.ServletContainerInitializer
+    spring-web-4.3.11.RELEASE.jar包的META-INF/services/javax.servlet.ServletContainerInitializer,该文件中包含org.springframework.web.SpringServletContainerInitializer
+              该类上的注解为@HandlesTypes(WebApplicationInitializer.class)
+   
+2、加载这个文件指定的类 SpringServletContainerInitializer
+3、spring的应用一启动会加载感兴趣的WebApplicationInitializer接口的下的所有组件；
+
+4、并且为WebApplicationInitializer实现类组件创建对象（组件不是接口，不是抽象类）,并调用组件的OnStartup方法
+	List<WebApplicationInitializer> initializers = new LinkedList<WebApplicationInitializer>();
+    initializers.add((WebApplicationInitializer) waiClass.newInstance());
+    for (WebApplicationInitializer initializer : initializers) {
+		initializer.onStartup(servletContext);
+    }
+    
+	1）、AbstractContextLoaderInitializer（AbstractDispatcherServletInitializer的父类）：创建根容器；createRootApplicationContext()该方法为onStartup()方法中调用；  
+	2）、AbstractDispatcherServletInitializer（WebApplicationInitializer的父类）：
+			创建一个web的ioc容器；createServletApplicationContext();该方法在   onStartup()方法中调用 
+			创建了DispatcherServlet；createDispatcherServlet()；
+			将创建的DispatcherServlet添加到ServletContext中；
+				getServletMappings();
+	
+总结：
+	以注解方式来启动SpringMVC；继承AbstractAnnotationConfigDispatcherServletInitializer；
+实现抽象方法指定DispatcherServlet的配置信息；
+
+===========================
+定制SpringMVC；
+1）、@EnableWebMvc:开启SpringMVC定制配置功能；
+	<mvc:annotation-driven/>；
+
+2）、配置组件（视图解析器、视图映射、静态资源映射、拦截器。。。）
+	extends WebMvcConfigurerAdapter
+
+
+
+			
+	
